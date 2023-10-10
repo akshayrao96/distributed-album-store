@@ -21,8 +21,8 @@ public class ThreadLogic implements Runnable {
     apiClient.setBasePath(this.path);
     DefaultApi albumsApi = new DefaultApi(apiClient);
     for (int j = 0; j < numRequests; j++) {
-      RequestHandler.get(albumsApi);
       RequestHandler.post(albumsApi);
+      RequestHandler.get(albumsApi);
     }
     this.completed.countDown();
   }

@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 public class ClientApp1 {
 
   private static final int INIT_NUM_REQUESTS = 10;
-  private static final int NUM_REQUESTS = 300;
+  private static final int NUM_REQUESTS = 250;
   private static final int DELAY = 2;
 
 
@@ -18,16 +18,16 @@ public class ClientApp1 {
     int threadGroups = Integer.parseInt(args[1]);
     String path = args[2];
 
-    System.out.println(
-        "threadGroupSize = " + numThreads + ", numThreadGroups = " + threadGroups + ", delay = "
-            + DELAY);
-
     CountDownLatch countDownLatchInitial = new CountDownLatch(numThreads);
-    ExecutorService executorService = Executors.newFixedThreadPool(numThreads * threadGroups);
+    ExecutorService executorService = Executors.newFixedThreadPool(threadGroups);
 
     runInitial(executorService, path, numThreads, countDownLatchInitial);
 
-    System.out.println("finished initial");
+    System.out.println("---FINISHED INITIAL THREADS---\n");
+
+    System.out.println(
+        "threadGroupSize = " + numThreads + ", numThreadGroups = " + threadGroups + ", delay = "
+            + DELAY);
 
     CountDownLatch countdownLatchLoading = new CountDownLatch(numThreads * threadGroups);
 
@@ -38,16 +38,15 @@ public class ClientApp1 {
 
     long end = System.currentTimeMillis();
 
-    System.out.println(end - start);
-
     double wallTime = (double) (end - start) / 1000;
-    double totalrequests = numThreads * threadGroups * NUM_REQUESTS * 2;
+    int totalRequests = numThreads * threadGroups * 1000 * 2;
 
     System.out.println();
-    System.out.println("Walltime : " + wallTime + " seconds");
-    System.out.println("Total API Requests : " + totalrequests);
+    System.out.println("Total API Requests : " + totalRequests);
 
-    int throughput = (int) (totalrequests / wallTime);
+    System.out.println("Walltime : " + wallTime + " seconds");
+
+    int throughput = (int) (totalRequests / wallTime);
 
     System.out.println("Throughput : " + throughput);
 
@@ -92,19 +91,10 @@ public class ClientApp1 {
           executorService2.execute(new ThreadLogic(path, NUM_REQUESTS, countDownLatch));
         }
         executorService2.shutdown();
-        while (!executorService2.isTerminated()){
-
-        }
       });
-//      for (int j = 0; j < numThreads; j++) {
-//        executorService.execute(new ThreadLogic(path, NUM_REQUESTS, countDownLatch));
-//      }
       Thread.sleep(DELAY * 1000);
     }
     countDownLatch.await();
     executorService.shutdown();
-    while (!executorService.isTerminated()){
-
-    }
   }
 }

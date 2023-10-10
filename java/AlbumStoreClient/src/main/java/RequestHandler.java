@@ -8,18 +8,30 @@ import java.io.File;
 
 public class RequestHandler {
 
+  private static final int MAX_REQUESTS = 5;
+
   public static void get(DefaultApi albumApi) {
-    try {
-      // Use the albumsApi to make the GET request to list albums
-      ApiResponse<AlbumInfo> album = albumApi.getAlbumByKeyWithHttpInfo("1");
-    } catch (ApiException e) {
-      // Handle exceptions
-      System.err.println("API Exception: " + e.getMessage());
-      e.printStackTrace();
+    int curr = 0;
+    while (curr < MAX_REQUESTS) {
+      try {
+        AlbumInfo album = albumApi.getAlbumByKey("1");
+        break;
+      } catch (ApiException e) {
+        if (e.getCode() >= 400 && e.getCode() < 600) {
+          curr++;
+        } else {
+          break;
+        }
+      }
+    }
+    if (curr >= MAX_REQUESTS) {
+      System.err.println("Unable to get from server");
     }
   }
 
   public static void post(DefaultApi albumApi) {
+    int curr = 0;
+
     AlbumsProfile profile = new AlbumsProfile();
     profile.setArtist("string");
     profile.setTitle("string");
@@ -27,10 +39,20 @@ public class RequestHandler {
 
     File image = new File("nmtb.png");
 
-    try {
-      ApiResponse<ImageMetaData> data = albumApi.newAlbumWithHttpInfo(image, profile);
-    } catch (ApiException e) {
-      e.printStackTrace();
+    while (curr < MAX_REQUESTS) {
+      try {
+        ImageMetaData data = albumApi.newAlbum(image, profile);
+        break;
+      } catch (ApiException e) {
+        if (e.getCode() >= 400 && e.getCode() < 600) {
+          curr++;
+        } else {
+          break;
+        }
+      }
+    }
+    if (curr >= MAX_REQUESTS) {
+      System.err.println("Unable to post to server");
     }
   }
 }
