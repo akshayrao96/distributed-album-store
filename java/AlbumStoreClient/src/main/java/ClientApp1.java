@@ -1,15 +1,12 @@
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 
 public class ClientApp1 {
 
-  private static final int INIT_NUM_REQUESTS = 100;
-  private static final int NUM_REQUESTS = 100;
+  private static final int INIT_NUM_REQUESTS = 10;
+  private static final int NUM_REQUESTS = 300;
   private static final int DELAY = 2;
 
 
@@ -42,6 +39,18 @@ public class ClientApp1 {
     long end = System.currentTimeMillis();
 
     System.out.println(end - start);
+
+    double wallTime = (double) (end - start) / 1000;
+    double totalrequests = numThreads * threadGroups * NUM_REQUESTS * 2;
+
+    System.out.println();
+    System.out.println("Walltime : " + wallTime + " seconds");
+    System.out.println("Total API Requests : " + totalrequests);
+
+    int throughput = (int) (totalrequests / wallTime);
+
+    System.out.println("Throughput : " + throughput);
+
   }
 
   private static void validateArgs(String[] args) {
@@ -77,12 +86,25 @@ public class ClientApp1 {
       int numThreads, int threadGroups, CountDownLatch countDownLatch) throws InterruptedException {
 
     for (int i = 0; i < threadGroups; i++) {
-      for (int j = 0; j < numThreads; j++) {
-        executorService.execute(new ThreadLogic(path, NUM_REQUESTS, countDownLatch));
-      }
+      executorService.execute(() -> {
+        ExecutorService executorService2 = Executors.newFixedThreadPool(numThreads);
+        for (int j = 0; j < numThreads; j++) {
+          executorService2.execute(new ThreadLogic(path, NUM_REQUESTS, countDownLatch));
+        }
+        executorService2.shutdown();
+        while (!executorService2.isTerminated()){
+
+        }
+      });
+//      for (int j = 0; j < numThreads; j++) {
+//        executorService.execute(new ThreadLogic(path, NUM_REQUESTS, countDownLatch));
+//      }
       Thread.sleep(DELAY * 1000);
     }
     countDownLatch.await();
     executorService.shutdown();
+    while (!executorService.isTerminated()){
+
+    }
   }
 }

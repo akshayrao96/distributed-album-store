@@ -20,7 +20,6 @@ public class RequestHandler {
   }
 
   public static void post(DefaultApi albumApi) {
-
     AlbumsProfile profile = new AlbumsProfile();
     profile.setArtist("string");
     profile.setTitle("string");
