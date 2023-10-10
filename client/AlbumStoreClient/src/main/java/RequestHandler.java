@@ -48,7 +48,7 @@ public class RequestHandler {
         ApiResponse<ImageMetaData> data = albumApi.newAlbumWithHttpInfo(image, profile);
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
-        return new ResponseData(startTime, "GET", latency, data.getStatusCode());
+        return new ResponseData(startTime, "POST", latency, data.getStatusCode());
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
           curr++;
