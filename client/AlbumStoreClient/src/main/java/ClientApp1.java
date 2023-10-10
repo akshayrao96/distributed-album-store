@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 public class ClientApp1 {
 
   private static final int INIT_NUM_REQUESTS = 10;
-  private static final int NUM_REQUESTS = 10;
+  private static final int NUM_REQUESTS = 15;
   private static final int DELAY = 2;
 
   public static void main(String[] args) throws InterruptedException {
