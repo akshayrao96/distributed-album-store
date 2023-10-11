@@ -19,6 +19,7 @@ public class RequestHandler1 {
         break;
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
+          System.out.println(e.getCode());
           curr++;
         } else {
           break;
@@ -45,6 +46,7 @@ public class RequestHandler1 {
         break;
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
+          System.out.println(e.getCode());
           curr++;
         } else {
           break;

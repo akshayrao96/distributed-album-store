@@ -7,8 +7,8 @@ import java.util.concurrent.Executors;
 
 public class ClientApp1 {
 
-  private static final int INIT_NUM_REQUESTS = 100;
-  private static final int NUM_REQUESTS = 1000;
+  private static final int INIT_NUM_REQUESTS = 0;
+  private static final int NUM_REQUESTS = 200;
   private static final int DELAY = 2;
 
   public static void main(String[] args) throws InterruptedException {
