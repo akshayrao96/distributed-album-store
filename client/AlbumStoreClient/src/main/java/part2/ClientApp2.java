@@ -1,3 +1,5 @@
+package part2;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -6,9 +8,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-public class ClientApp1 {
+public class ClientApp2 {
 
-  private static final int INIT_NUM_REQUESTS = 10;
+  private static final int INIT_NUM_REQUESTS = 100;
   private static final int NUM_REQUESTS = 1000;
   private static final int DELAY = 2;
 
@@ -76,7 +78,7 @@ public class ClientApp1 {
   private static void runInitial(ExecutorService executorService, String path, int numThreads,
       CountDownLatch countDownLatch) throws InterruptedException {
     for (int i = 0; i < numThreads; i++) {
-      executorService.execute(new ThreadLogic(path, INIT_NUM_REQUESTS, countDownLatch, null));
+      executorService.execute(new ThreadLogic2(path, INIT_NUM_REQUESTS, countDownLatch, null));
     }
     countDownLatch.await();
   }
@@ -89,7 +91,7 @@ public class ClientApp1 {
       executorService.execute(() -> {
         ExecutorService executorService2 = Executors.newFixedThreadPool(numThreads);
         for (int j = 0; j < numThreads; j++) {
-          executorService2.execute(new ThreadLogic(path, NUM_REQUESTS, countDownLatch, data));
+          executorService2.execute(new ThreadLogic2(path, NUM_REQUESTS, countDownLatch, data));
         }
         executorService2.shutdown();
       });

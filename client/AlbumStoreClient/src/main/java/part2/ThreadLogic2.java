@@ -1,10 +1,12 @@
+package part2;
+
 import io.swagger.client.ApiClient;
 import io.swagger.client.Configuration;
 import io.swagger.client.api.DefaultApi;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
 
-public class ThreadLogic implements Runnable {
+public class ThreadLogic2 implements Runnable {
 
   private final String path;
   private final int numRequests;
@@ -12,7 +14,7 @@ public class ThreadLogic implements Runnable {
 
   private final ConcurrentLinkedDeque<ResponseData> data;
 
-  public ThreadLogic(String path, int numRequests, CountDownLatch completed,
+  public ThreadLogic2(String path, int numRequests, CountDownLatch completed,
       ConcurrentLinkedDeque<ResponseData> data) {
     this.path = path;
     this.numRequests = numRequests;
@@ -27,11 +29,11 @@ public class ThreadLogic implements Runnable {
     DefaultApi albumsApi = new DefaultApi(apiClient);
 
     for (int j = 0; j < numRequests; j++) {
-      ResponseData responseGet = RequestHandler.post(albumsApi);
+      ResponseData responseGet = RequestHandler2.post(albumsApi);
       if (this.data != null && responseGet != null) {
         data.add(responseGet);
       }
-      ResponseData responsePost = RequestHandler.get(albumsApi);
+      ResponseData responsePost = RequestHandler2.get(albumsApi);
       if (this.data != null && responseGet != null) {
         data.add(responsePost);
       }
