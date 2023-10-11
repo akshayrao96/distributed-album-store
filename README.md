@@ -1,6 +1,3 @@
-<h4>To run project:</h4>
-
-Change directory to AlbumStoreClient and run:
-
-mvn clean
-mvn compile
+<h2>Project Instructions</h2>
+<h4>Change directory to AlbumStoreClient, run:</h4>
+mvn clean install
