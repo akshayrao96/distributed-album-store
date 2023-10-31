@@ -20,6 +20,7 @@ public class RequestHandler2 {
         ApiResponse<AlbumInfo> album = albumApi.getAlbumByKeyWithHttpInfo("1");
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
+        //success++
         return new ResponseData(startTime, "GET", latency, album.getStatusCode());
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
@@ -31,6 +32,7 @@ public class RequestHandler2 {
     }
     if (curr >= MAX_REQUESTS) {
       System.err.println("Unable to get from server");
+      //failed++;
     }
     return null;
   }

@@ -5,6 +5,7 @@ import io.swagger.client.Configuration;
 import io.swagger.client.api.DefaultApi;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadLogic2 implements Runnable {
 
@@ -14,12 +15,17 @@ public class ThreadLogic2 implements Runnable {
 
   private final ConcurrentLinkedDeque<ResponseData> data;
 
+  private final AtomicInteger success;
+  private final AtomicInteger failed;
+
   public ThreadLogic2(String path, int numRequests, CountDownLatch completed,
-      ConcurrentLinkedDeque<ResponseData> data) {
+      ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed) {
     this.path = path;
     this.numRequests = numRequests;
     this.completed = completed;
     this.data = data;
+    this.success = success;
+    this.failed = failed;
   }
 
   @Override
@@ -32,10 +38,16 @@ public class ThreadLogic2 implements Runnable {
       ResponseData responseGet = RequestHandler2.post(albumsApi);
       if (this.data != null && responseGet != null) {
         data.add(responseGet);
+        if (success != null) success.incrementAndGet();
+      } else {
+        if (failed != null) failed.incrementAndGet();
       }
       ResponseData responsePost = RequestHandler2.get(albumsApi);
       if (this.data != null && responseGet != null) {
         data.add(responsePost);
+        if (success != null) success.incrementAndGet();
+      } else {
+        if (failed != null) failed.incrementAndGet();
       }
     }
     this.completed.countDown();

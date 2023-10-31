@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ClientApp2 {
@@ -35,20 +36,24 @@ public class ClientApp2 {
 
     CountDownLatch countdownLatchLoading = new CountDownLatch(numThreads * threadGroups);
     ConcurrentLinkedDeque<ResponseData> data = new ConcurrentLinkedDeque<>();
+    AtomicInteger success = new AtomicInteger(0);
+    AtomicInteger failed = new AtomicInteger(0);
 
     long start = System.currentTimeMillis();
     runTrackedThreads(executorService, path, numThreads, threadGroups,
-        countdownLatchLoading, data);
+        countdownLatchLoading, data, success, failed);
     long end = System.currentTimeMillis();
 
-    double wallTime = (double) (end - start) / 1000;
-    int totalRequests = numThreads * threadGroups * 1000 * 2;
+    double wallTime = (double) (end - start) / NUM_REQUESTS;
+    int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 2;
 
     System.out.println();
     System.out.println("Total API Requests : " + totalRequests);
     System.out.println("Walltime : " + wallTime + " seconds");
     int throughput = (int) (totalRequests / wallTime);
     System.out.println("Throughput : " + throughput);
+    System.out.println("Successful requests: " + success);
+    System.out.println("Failed requests: " + failed);
 
     writeResponseDataToCsv(data);
     System.out.println("\n---STATISTICS FOR REQUESTS---\n");
@@ -78,20 +83,23 @@ public class ClientApp2 {
   private static void runInitial(ExecutorService executorService, String path, int numThreads,
       CountDownLatch countDownLatch) throws InterruptedException {
     for (int i = 0; i < numThreads; i++) {
-      executorService.execute(new ThreadLogic2(path, INIT_NUM_REQUESTS, countDownLatch, null));
+      executorService.execute(
+          new ThreadLogic2(path, INIT_NUM_REQUESTS, countDownLatch, null, null, null));
     }
     countDownLatch.await();
   }
 
   private static void runTrackedThreads(ExecutorService executorService, String path,
       int numThreads, int threadGroups, CountDownLatch countDownLatch,
-      ConcurrentLinkedDeque<ResponseData> data) throws InterruptedException {
+      ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed)
+      throws InterruptedException {
 
     for (int i = 0; i < threadGroups; i++) {
       executorService.execute(() -> {
         ExecutorService executorService2 = Executors.newFixedThreadPool(numThreads);
         for (int j = 0; j < numThreads; j++) {
-          executorService2.execute(new ThreadLogic2(path, NUM_REQUESTS, countDownLatch, data));
+          executorService2.execute(
+              new ThreadLogic2(path, NUM_REQUESTS, countDownLatch, data, success, failed));
         }
         executorService2.shutdown();
       });
