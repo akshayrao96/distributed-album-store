@@ -12,31 +12,6 @@ public class RequestHandler2 {
 
   private static final int MAX_REQUESTS = 5;
 
-  public static ResponseData get(DefaultApi albumApi) {
-    long startTime = System.currentTimeMillis();
-    int curr = 0;
-    while (curr < MAX_REQUESTS) {
-      try {
-        ApiResponse<AlbumInfo> album = albumApi.getAlbumByKeyWithHttpInfo("1");
-        long endTime = System.currentTimeMillis();
-        long latency = endTime - startTime;
-        //success++
-        return new ResponseData(startTime, "GET", latency, album.getStatusCode());
-      } catch (ApiException e) {
-        if (e.getCode() >= 400 && e.getCode() < 600) {
-          curr++;
-        } else {
-          break;
-        }
-      }
-    }
-    if (curr >= MAX_REQUESTS) {
-      System.err.println("Unable to get from server");
-      //failed++;
-    }
-    return null;
-  }
-
   public static ResponseData post(DefaultApi albumApi) {
     long startTime = System.currentTimeMillis();
     int curr = 0;
@@ -63,6 +38,31 @@ public class RequestHandler2 {
     }
     if (curr >= MAX_REQUESTS) {
       System.err.println("Unable to post to server");
+    }
+    return null;
+  }
+
+  public static ResponseData get(DefaultApi albumApi) {
+    long startTime = System.currentTimeMillis();
+    int curr = 0;
+    while (curr < MAX_REQUESTS) {
+      try {
+        ApiResponse<AlbumInfo> album = albumApi.getAlbumByKeyWithHttpInfo("1");
+        long endTime = System.currentTimeMillis();
+        long latency = endTime - startTime;
+        //success++
+        return new ResponseData(startTime, "GET", latency, album.getStatusCode());
+      } catch (ApiException e) {
+        if (e.getCode() >= 400 && e.getCode() < 600) {
+          curr++;
+        } else {
+          break;
+        }
+      }
+    }
+    if (curr >= MAX_REQUESTS) {
+      System.err.println("Unable to get from server");
+      //failed++;
     }
     return null;
   }
