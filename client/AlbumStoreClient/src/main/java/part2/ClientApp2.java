@@ -44,7 +44,7 @@ public class ClientApp2 {
         countdownLatchLoading, data, success, failed);
     long end = System.currentTimeMillis();
 
-    double wallTime = (double) (end - start) / NUM_REQUESTS;
+    double wallTime = (double) (end - start) / 1000;
     int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 2;
 
     System.out.println();

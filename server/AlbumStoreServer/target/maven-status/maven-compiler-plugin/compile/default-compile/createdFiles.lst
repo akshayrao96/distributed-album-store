@@ -1,2 +1,6 @@
-Albums.class
+model/Album.class
+model/DynamoDBTable.class
+config/DynamoDBConfig.class
+model/DynamoDBController.class
 AlbumsServlet.class
+model/AlbumProfile.class
