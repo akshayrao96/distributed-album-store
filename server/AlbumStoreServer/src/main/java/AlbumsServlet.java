@@ -19,8 +19,10 @@ import model.DynamoDBTable;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
-@MultipartConfig
 @WebServlet(name = "AlbumsServlet", value = "/albums/*")
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 10,
+    maxFileSize = 1024 * 1024 * 50,
+    maxRequestSize = 1024 * 1024 * 100)
 public class AlbumsServlet extends HttpServlet {
 
   private DynamoDBController dbController;
@@ -31,7 +33,7 @@ public class AlbumsServlet extends HttpServlet {
     super.init();
     DynamoDbClient ddb = DynamoDBConfig.initDBClient();
     try {
-      dbController = new DynamoDBController(ddb);
+      dbController = new DynamoDBController(ddb, TABLE_NAME);
       if (!DynamoDBTable.doesTableExist(ddb, TABLE_NAME)) {
         DynamoDBTable.createTable(ddb, TABLE_NAME);
       }
@@ -55,8 +57,7 @@ public class AlbumsServlet extends HttpServlet {
     if (urlParts.length != 2) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     } else {
-//      Album album = dbController.getProfile(urlParts[1]);
-//      System.out.println(album);
+      Album album = dbController.getProfile(urlParts[1]);
       response.getOutputStream().print(gson.toJson(example));
       response.setStatus(HttpServletResponse.SC_OK);
     }
@@ -71,6 +72,8 @@ public class AlbumsServlet extends HttpServlet {
     Part profilePart = request.getPart("profile");
     JsonObject profileObject = null;
 
+    AlbumProfile albumProfile = null;
+
     if (profilePart != null) {
       try (BufferedReader reader = new BufferedReader(
           new InputStreamReader(profilePart.getInputStream()))) {
@@ -80,12 +83,27 @@ public class AlbumsServlet extends HttpServlet {
           stringBuilder.append(line);
         }
         String profileJson = stringBuilder.toString();
+
+        if (profileJson.substring(0, 1).equals("c")) {
+          profileJson = profileJson.replace("class AlbumsProfile {", "").replace("}", "").trim();
+          String[] keyValuePairs = profileJson.split(":\\s+string");
+          StringBuilder jsonString = new StringBuilder();
+          jsonString.append("{");
+          for (int i = 0; i < keyValuePairs.length - 1; i++) {
+            String[] parts = keyValuePairs[i].split(":\\s+");
+            jsonString.append("\"").append(parts[0].trim()).append("\":\"string\",");
+          }
+          String lastPair = keyValuePairs[keyValuePairs.length - 1].trim();
+          String[] parts = lastPair.split(":\\s+");
+          jsonString.append("\"").append(parts[0].trim()).append("\":\"string\"");
+          jsonString.append("}");
+          profileJson = jsonString.toString();
+//          profileJson.replaceAll("\":\"", "\":");
+        }
         Gson gson = new Gson();
         profileObject = gson.fromJson(profileJson, JsonObject.class);
       }
     }
-
-    AlbumProfile albumProfile = null;
 
     if (profileObject != null) {
       albumProfile = new AlbumProfile(new Album(
@@ -102,7 +120,7 @@ public class AlbumsServlet extends HttpServlet {
     JsonObject jsonObject = new JsonObject();
     assert albumProfile != null;
 
-//    dbController.postProfile(albumProfile);
+    dbController.postProfile(albumProfile);
 
     jsonObject.addProperty("albumID", albumProfile.getAlbumID());
     jsonObject.addProperty("imageSize", imgSize.toString());

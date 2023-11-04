@@ -2,7 +2,18 @@ package model;
 
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.*;
+import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
+import software.amazon.awssdk.services.dynamodb.model.CreateTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.CreateTableResponse;
+import software.amazon.awssdk.services.dynamodb.model.DescribeTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.DescribeTableResponse;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement;
+import software.amazon.awssdk.services.dynamodb.model.KeyType;
+import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
+import software.amazon.awssdk.services.dynamodb.model.TableStatus;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 public class DynamoDBTable {
@@ -26,14 +37,6 @@ public class DynamoDBTable {
                 AttributeDefinition.builder()
                     .attributeName("albumID")
                     .attributeType(ScalarAttributeType.S)
-                    .build(),
-                AttributeDefinition.builder()
-                    .attributeName("profile")
-                    .attributeType(ScalarAttributeType.S)
-                    .build(),
-                AttributeDefinition.builder()
-                    .attributeName("image")
-                    .attributeType(ScalarAttributeType.B)
                     .build()
             )
             .keySchema(KeySchemaElement.builder()
@@ -41,8 +44,8 @@ public class DynamoDBTable {
                 .keyType(KeyType.HASH)
                 .build())
             .provisionedThroughput(ProvisionedThroughput.builder()
-                .readCapacityUnits(5L)
-                .writeCapacityUnits(5L)
+                .readCapacityUnits(250L)
+                .writeCapacityUnits(500L)
                 .build())
             .tableName(tableName)
             .build();
@@ -50,7 +53,8 @@ public class DynamoDBTable {
         CreateTableResponse response = ddb.createTable(request);
 
         // Wait until the Amazon DynamoDB table is created.
-        WaiterResponse<DescribeTableResponse> waiterResponse = dbWaiter.waitUntilTableExists(tableRequest);
+        WaiterResponse<DescribeTableResponse> waiterResponse = dbWaiter.waitUntilTableExists(
+            tableRequest);
         waiterResponse.matched().response().ifPresent(System.out::println);
         return response.tableDescription().tableName();
       }

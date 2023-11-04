@@ -50,6 +50,7 @@ public class ThreadLogic2 implements Runnable {
         if (failed != null) failed.incrementAndGet();
       }
     }
+    System.out.println(Thread.currentThread().getName() + " has finished");
     this.completed.countDown();
   }
 }

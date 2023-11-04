@@ -18,12 +18,13 @@ public class DynamoDBController {
 
   private final DynamoDbClient ddb;
   private final Gson gson;
-  private final String TABLE_NAME = "albumsData";
+  private final String tableName;
   private SdkBytes image;
 
-  public DynamoDBController(DynamoDbClient ddb) throws IOException {
+  public DynamoDBController(DynamoDbClient ddb, String tableName) throws IOException {
     this.ddb = ddb;
     this.gson = new Gson();
+    this.tableName = tableName;
     generateImage();
   }
 
@@ -43,7 +44,7 @@ public class DynamoDBController {
     itemValues.put("image", AttributeValue.builder().b(this.image).build());
 
     PutItemRequest request = PutItemRequest.builder()
-        .tableName(TABLE_NAME)
+        .tableName(tableName)
         .item(itemValues)
         .build();
 
@@ -56,7 +57,7 @@ public class DynamoDBController {
 
     GetItemRequest getItemRequest = GetItemRequest.builder()
         .key(keyMap)
-        .tableName(TABLE_NAME)
+        .tableName(tableName)
         .build();
 
     GetItemResponse response = ddb.getItem(getItemRequest);
