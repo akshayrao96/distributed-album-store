@@ -51,14 +51,14 @@ public class AlbumsServlet extends HttpServlet {
 
     String urlPath = request.getPathInfo();
 
-    Album example = new Album("Sex Pistols", "Never Mind The Bollocks!", "1977");
+    Album album;
 
     String[] urlParts = urlPath.split("/");
     if (urlParts.length != 2) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     } else {
-      Album album = dbController.getProfile(urlParts[1]);
-      response.getOutputStream().print(gson.toJson(example));
+      album = dbController.getProfile(urlParts[1]);
+      response.getOutputStream().print(gson.toJson(album));
       response.setStatus(HttpServletResponse.SC_OK);
     }
   }

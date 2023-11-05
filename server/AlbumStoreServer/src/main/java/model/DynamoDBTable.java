@@ -44,8 +44,8 @@ public class DynamoDBTable {
                 .keyType(KeyType.HASH)
                 .build())
             .provisionedThroughput(ProvisionedThroughput.builder()
-                .readCapacityUnits(1000L)
-                .writeCapacityUnits(1000L)
+                .readCapacityUnits(5000L)
+                .writeCapacityUnits(5000L)
                 .build())
             .tableName(tableName)
             .build();

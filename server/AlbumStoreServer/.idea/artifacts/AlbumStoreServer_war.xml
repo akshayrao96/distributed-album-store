@@ -1,13 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="war" name="AlbumStoreServer:war">
-    <output-path>$PROJECT_DIR$/target</output-path>
-    <properties id="maven-jee-properties">
-      <options>
-        <module>AlbumStoreServer</module>
-        <packaging>war</packaging>
-      </options>
-    </properties>
-    <root id="archive" name="AlbumStoreServer-1.0-SNAPSHOT.war">
+    <output-path>$PROJECT_DIR$/out/artifacts/AlbumStoreServer_war</output-path>
+    <root id="archive" name="AlbumStoreServer_war.war">
       <element id="artifact" artifact-name="AlbumStoreServer:war exploded" />
     </root>
   </artifact>
