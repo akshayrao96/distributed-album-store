@@ -1,16 +1,14 @@
 package model;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import model.Album;
+import java.util.UUID;
 
 public class AlbumProfile {
 
-  private static final AtomicInteger idCounter = new AtomicInteger(1);
   private String albumID;
   private Album profile;
 
   public AlbumProfile(Album profile) {
-    this.albumID = String.valueOf(idCounter.getAndIncrement());
+    this.albumID = UUID.randomUUID().toString();
     this.profile = profile;
   }
 

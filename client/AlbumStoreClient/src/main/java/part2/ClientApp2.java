@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientApp2 {
 
-  private static final int INIT_NUM_REQUESTS = 10;
-  private static final int NUM_REQUESTS = 100;
+  private static final int INIT_NUM_REQUESTS = 100;
+  private static final int NUM_REQUESTS = 1000;
   private static final int DELAY = 2;
 
   public static void main(String[] args) throws InterruptedException {
