@@ -11,6 +11,7 @@ import java.io.File;
 public class RequestHandler2 {
 
   private static final int MAX_REQUESTS = 5;
+  private static String id = "1";
 
   public static ResponseData post(DefaultApi albumApi) {
     long startTime = System.currentTimeMillis();
@@ -27,6 +28,7 @@ public class RequestHandler2 {
         ApiResponse<ImageMetaData> data = albumApi.newAlbumWithHttpInfo(image, profile);
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
+        id = data.getData().getAlbumID();
         return new ResponseData(startTime, "POST", latency, data.getStatusCode());
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
@@ -47,10 +49,9 @@ public class RequestHandler2 {
     int curr = 0;
     while (curr < MAX_REQUESTS) {
       try {
-        ApiResponse<AlbumInfo> album = albumApi.getAlbumByKeyWithHttpInfo("1");
+        ApiResponse<AlbumInfo> album = albumApi.getAlbumByKeyWithHttpInfo(id);
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
-        //success++
         return new ResponseData(startTime, "GET", latency, album.getStatusCode());
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
@@ -62,7 +63,6 @@ public class RequestHandler2 {
     }
     if (curr >= MAX_REQUESTS) {
       System.err.println("Unable to get from server");
-      //failed++;
     }
     return null;
   }
