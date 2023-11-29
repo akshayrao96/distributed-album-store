@@ -3,6 +3,7 @@ package part2;
 import io.swagger.client.ApiException;
 import io.swagger.client.ApiResponse;
 import io.swagger.client.api.DefaultApi;
+import io.swagger.client.api.LikeApi;
 import io.swagger.client.model.AlbumInfo;
 import io.swagger.client.model.AlbumsProfile;
 import io.swagger.client.model.ImageMetaData;
@@ -66,4 +67,10 @@ public class RequestHandler2 {
     }
     return null;
   }
+
+//  public static ResponseData like(LikeApi likeApi) {
+//
+//  }
+//
+//  }
 }

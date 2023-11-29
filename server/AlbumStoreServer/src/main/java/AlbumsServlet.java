@@ -12,10 +12,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import model.Album;
-import model.AlbumProfile;
-import model.DynamoDBController;
-import model.DynamoDBTable;
+import albums.Album;
+import albums.AlbumProfile;
+import dynamoDB.DynamoDBController;
+import dynamoDB.DynamoDBTable;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 

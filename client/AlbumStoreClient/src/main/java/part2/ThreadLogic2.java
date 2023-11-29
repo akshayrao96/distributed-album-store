@@ -42,6 +42,9 @@ public class ThreadLogic2 implements Runnable {
       } else {
         if (failed != null) failed.incrementAndGet();
       }
+//      ResponseData responseLike = RequestHandler2
+
+
       ResponseData responsePost = RequestHandler2.get(albumsApi);
       if (this.data != null && responseGet != null) {
         //data.add(responsePost);
