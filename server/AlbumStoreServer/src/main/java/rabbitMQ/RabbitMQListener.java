@@ -17,7 +17,7 @@ public class RabbitMQListener implements ServletContextListener {
 
   private ExecutorService executorService;
   private RabbitMQProducer producer;
-  private final int NUM_CONSUMERS = 120;
+  private final int NUM_CONSUMERS = 12;
   private List<RabbitMQConsumer> consumers = new ArrayList<>();
 
   @Override

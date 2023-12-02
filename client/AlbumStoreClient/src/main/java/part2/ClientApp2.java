@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientApp2 {
 
-  private static final int INIT_NUM_REQUESTS = 10;
+  private static final int INIT_NUM_REQUESTS = 100;
   private static final int NUM_REQUESTS = 100;
   private static final int DELAY = 2;
 
@@ -45,7 +45,7 @@ public class ClientApp2 {
     long end = System.currentTimeMillis();
 
     double wallTime = (double) (end - start) / 1000;
-    int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 2;
+    int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 4;
 
     System.out.println();
     System.out.println("Total API Requests : " + totalRequests);

@@ -47,7 +47,7 @@ public class RabbitMQConsumer {
         processMessageAndUpdateDB(message, delivery.getEnvelope().getDeliveryTag());
       };
 
-      channel.basicConsume(queueName, false, deliverCallback, consumerTag -> {});
+      channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
     } catch (IOException | TimeoutException e) {
       throw new RuntimeException("Failed to initialize RabbitMQ consumer", e);
     }
@@ -64,11 +64,8 @@ public class RabbitMQConsumer {
       } else if ("dislike".equals(reviewType)) {
         dbController.incrementDislike(albumID);
       }
-
-      channel.basicAck(deliveryTag, false);
     } catch (Exception e) {
       System.err.println("Failed to process message: " + e.getMessage());
-      // Handle message requeue or other actions in case of failure
     }
   }
 
