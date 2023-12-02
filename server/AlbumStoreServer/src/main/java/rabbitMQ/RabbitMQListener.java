@@ -17,7 +17,7 @@ public class RabbitMQListener implements ServletContextListener {
 
   private ExecutorService executorService;
   private RabbitMQProducer producer;
-  private final int NUM_CONSUMERS = 12;
+  private final int NUM_CONSUMERS = 20;
   private List<RabbitMQConsumer> consumers = new ArrayList<>();
 
   @Override
@@ -46,7 +46,7 @@ public class RabbitMQListener implements ServletContextListener {
   @Override
   public void contextDestroyed(ServletContextEvent sce) {
     for (RabbitMQConsumer consumer : consumers) {
-      consumer.close(); // Close each consumer
+      consumer.close();
     }
     executorService.shutdown();
     try {

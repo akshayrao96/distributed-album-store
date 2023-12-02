@@ -12,7 +12,7 @@ public class RabbitMQProducer {
   private final ConnectionFactory factory;
   private Connection connection;
   private Channel channel;
-  private final String HOST = "localhost";
+  private final String HOST = "35.86.106.120";
   private final String ROUTING_KEY = "myRoutingKey"; // constant routing key
 
   public RabbitMQProducer(String exchangeName) {
