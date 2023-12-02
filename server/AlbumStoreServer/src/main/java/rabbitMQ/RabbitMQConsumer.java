@@ -1,60 +1,87 @@
+package rabbitMQ;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.rabbitmq.client.*;
+
 import dynamoDB.DynamoDBController;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class RabbitMQConsumer {
 
+  private final String exchangeName;
   private final String queueName;
+  private final String routingKey = "myRoutingKey";
   private final DynamoDBController dbController;
+  private Connection connection;
+  private Channel channel;
+  private final String HOST = "localhost";
 
-  private final String HOST = "35.87.82.240";
-
-  public RabbitMQConsumer(String queueName, DynamoDBController dbController) {
+  public RabbitMQConsumer(String exchangeName, DynamoDBController dbController, String queueName) {
+    this.exchangeName = exchangeName;
     this.queueName = queueName;
     this.dbController = dbController;
+
+    initializeRabbitMQ();
   }
 
-  public void startConsumer() {
-    ConnectionFactory factory = new ConnectionFactory();
+  private void initializeRabbitMQ() {
+    try {
+      ConnectionFactory factory = new ConnectionFactory();
+      factory.setHost(HOST);
+      factory.setPort(5672);
+      factory.setUsername("guest");
+      factory.setPassword("guest");
 
-    factory.setHost(HOST);
-    factory.setPort(5672);
-    factory.setUsername("guest");
-    factory.setPassword("guest");
+      connection = factory.newConnection();
+      channel = connection.createChannel();
 
-    try (Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel()) {
-
+      channel.exchangeDeclare(exchangeName, "direct");
       channel.queueDeclare(queueName, true, false, false, null);
+      channel.queueBind(queueName, exchangeName, routingKey);
+
       DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-        // Process the message and update the database
-        processMessageAndUpdateDB(message);
+        processMessageAndUpdateDB(message, delivery.getEnvelope().getDeliveryTag());
       };
-      channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
+
+      channel.basicConsume(queueName, false, deliverCallback, consumerTag -> {});
     } catch (IOException | TimeoutException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Failed to initialize RabbitMQ consumer", e);
     }
   }
 
-  private void processMessageAndUpdateDB(String message) {
+  private void processMessageAndUpdateDB(String message, long deliveryTag) {
     try {
       JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
       String albumID = jsonObject.get("albumID").getAsString();
       String reviewType = jsonObject.get("reviewType").getAsString();
 
-      // Logic to update the database
-      if (reviewType.equals("like")) {
+      if ("like".equals(reviewType)) {
         dbController.incrementLike(albumID);
       } else if ("dislike".equals(reviewType)) {
         dbController.incrementDislike(albumID);
       }
+
+      channel.basicAck(deliveryTag, false);
     } catch (Exception e) {
       System.err.println("Failed to process message: " + e.getMessage());
+      // Handle message requeue or other actions in case of failure
+    }
+  }
+
+  public void close() {
+    try {
+      if (channel != null && channel.isOpen()) {
+        channel.close();
+      }
+      if (connection != null && connection.isOpen()) {
+        connection.close();
+      }
+    } catch (IOException | TimeoutException e) {
+      e.printStackTrace();
     }
   }
 }

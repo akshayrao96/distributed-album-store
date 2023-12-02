@@ -14,7 +14,7 @@ public class RequestHandler2 {
   private static final int MAX_REQUESTS = 5;
   private static String id = "1";
 
-  public static ResponseData post(DefaultApi albumApi) {
+  public static ResponseData postAlbum(DefaultApi albumApi) {
     long startTime = System.currentTimeMillis();
     int curr = 0;
     AlbumsProfile profile = new AlbumsProfile();
@@ -45,7 +45,53 @@ public class RequestHandler2 {
     return null;
   }
 
-  public static ResponseData get(DefaultApi albumApi) {
+  public static ResponseData postLike(LikeApi likeApi) {
+    long startTime = System.currentTimeMillis();
+    int curr = 0;
+    while (curr < MAX_REQUESTS) {
+      try {
+        ApiResponse<Void> data = likeApi.reviewWithHttpInfo("like", id);
+        long endTime = System.currentTimeMillis();
+        long latency = endTime - startTime;
+        return new ResponseData(startTime, "POST", latency, data.getStatusCode());
+      } catch (ApiException e) {
+        if (e.getCode() >= 400 && e.getCode() < 600) {
+          curr++;
+        } else {
+          break;
+        }
+      }
+    }
+    if (curr >= MAX_REQUESTS) {
+      System.err.println("Unable to post to server");
+    }
+    return null;
+  }
+
+  public static ResponseData postDislike(LikeApi likeApi) {
+    long startTime = System.currentTimeMillis();
+    int curr = 0;
+    while (curr < MAX_REQUESTS) {
+      try {
+        ApiResponse<Void> data = likeApi.reviewWithHttpInfo("dislike", id);
+        long endTime = System.currentTimeMillis();
+        long latency = endTime - startTime;
+        return new ResponseData(startTime, "POST", latency, data.getStatusCode());
+      } catch (ApiException e) {
+        if (e.getCode() >= 400 && e.getCode() < 600) {
+          curr++;
+        } else {
+          break;
+        }
+      }
+    }
+    if (curr >= MAX_REQUESTS) {
+      System.err.println("Unable to post to server");
+    }
+    return null;
+  }
+
+  public static ResponseData getAlbum(DefaultApi albumApi) {
     long startTime = System.currentTimeMillis();
     int curr = 0;
     while (curr < MAX_REQUESTS) {
@@ -63,7 +109,7 @@ public class RequestHandler2 {
       }
     }
     if (curr >= MAX_REQUESTS) {
-      System.err.println("Unable to get from server");
+      System.err.println("Unable to getAlbum from server");
     }
     return null;
   }

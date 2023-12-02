@@ -6,24 +6,22 @@ import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-
 public class RabbitMQProducer {
 
-  private final String queueName;
+  private final String exchangeName;
   private final ConnectionFactory factory;
   private Connection connection;
   private Channel channel;
-  private final String HOST = "35.87.82.240";
+  private final String HOST = "localhost";
+  private final String ROUTING_KEY = "myRoutingKey"; // constant routing key
 
-
-  public RabbitMQProducer(String queueName) {
-    this.queueName = queueName;
+  public RabbitMQProducer(String exchangeName) {
+    this.exchangeName = exchangeName;
     factory = new ConnectionFactory();
     factory.setHost(HOST);
     factory.setPort(5672);
     factory.setUsername("guest");
     factory.setPassword("guest");
-
 
     initializeRabbitMQ();
   }
@@ -32,7 +30,7 @@ public class RabbitMQProducer {
     try {
       connection = factory.newConnection();
       channel = connection.createChannel();
-      channel.queueDeclare(queueName, false, false, false, null);
+      channel.exchangeDeclare(exchangeName, "direct");
     } catch (IOException | TimeoutException e) {
       throw new RuntimeException("Failed to connect to RabbitMQ", e);
     }
@@ -40,7 +38,7 @@ public class RabbitMQProducer {
 
   public void publishMessage(String message) {
     try {
-      channel.basicPublish("", queueName, null, message.getBytes());
+      channel.basicPublish(exchangeName, ROUTING_KEY, null, message.getBytes());
     } catch (IOException e) {
       throw new RuntimeException("Failed to publish message to RabbitMQ", e);
     }
@@ -48,14 +46,14 @@ public class RabbitMQProducer {
 
   public void close() {
     try {
-      if (channel != null) {
+      if (channel != null && channel.isOpen()) {
         channel.close();
       }
-      if (connection != null) {
+      if (connection != null && connection.isOpen()) {
         connection.close();
       }
     } catch (IOException | TimeoutException e) {
-      System.err.println("Failed to close RabbitMQ connection/channel: " + e.getMessage());
+      System.err.println("Failed to close RabbitMQ resources: " + e.getMessage());
     }
   }
 }

@@ -27,7 +27,7 @@ public class RequestHandler1 {
       }
     }
     if (curr >= MAX_REQUESTS) {
-      System.err.println("Unable to get from server");
+      System.err.println("Unable to getAlbum from server");
     }
   }
 

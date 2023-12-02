@@ -81,7 +81,8 @@ public class DynamoDBController {
     Map<String, AttributeValue> keyMap = new HashMap<>();
     keyMap.put("albumID", AttributeValue.builder().s(albumID).build());
 
-    String updateExpression = "SET " + counterAttributeName + " = " + counterAttributeName + " + :val";
+    String updateExpression =
+        "SET " + counterAttributeName + " = " + counterAttributeName + " + :val";
 
     Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
     expressionAttributeValues.put(":val", AttributeValue.builder().n(String.valueOf(1)).build());
@@ -99,6 +100,7 @@ public class DynamoDBController {
       System.err.println("Error updating counter in DynamoDB: " + e.getMessage());
     }
   }
+
   public void incrementLike(String albumID) {
     updateCounter(albumID, "likes");
   }

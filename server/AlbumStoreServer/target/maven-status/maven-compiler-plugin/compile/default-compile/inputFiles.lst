@@ -6,4 +6,5 @@
 /Users/akshayrao/Desktop/zooby/neu/cs6650/assignment1/server/AlbumStoreServer/src/main/java/config/DynamoDBConfig.java
 /Users/akshayrao/Desktop/zooby/neu/cs6650/assignment1/server/AlbumStoreServer/src/main/java/rabbitMQ/RabbitMQConsumer.java
 /Users/akshayrao/Desktop/zooby/neu/cs6650/assignment1/server/AlbumStoreServer/src/main/java/dynamoDB/DynamoDBController.java
+/Users/akshayrao/Desktop/zooby/neu/cs6650/assignment1/server/AlbumStoreServer/src/main/java/rabbitMQ/RabbitMQListener.java
 /Users/akshayrao/Desktop/zooby/neu/cs6650/assignment1/server/AlbumStoreServer/src/main/java/AlbumsServlet.java
