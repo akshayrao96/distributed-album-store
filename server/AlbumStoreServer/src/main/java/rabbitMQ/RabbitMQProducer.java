@@ -13,7 +13,7 @@ public class RabbitMQProducer {
   private final ConnectionFactory factory;
   private Connection connection;
   private Channel channel;
-  private final String HOST = "localhost";
+  private final String HOST = "35.91.154.153";
   private final String ROUTING_KEY = "myRoutingKey"; // constant routing key
 
   // Queue to hold messages for batch processing

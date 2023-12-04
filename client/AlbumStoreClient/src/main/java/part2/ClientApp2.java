@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ClientApp2 {
 
   private static final int INIT_NUM_REQUESTS = 100;
-  private static final int NUM_REQUESTS = 100;
+  private static final int NUM_REQUESTS = 150;
   private static final int DELAY = 2;
 
   public static void main(String[] args) throws InterruptedException {
@@ -44,7 +44,7 @@ public class ClientApp2 {
         countdownLatchLoading, data, success, failed);
     long end = System.currentTimeMillis();
 
-    double wallTime = 60.0; //(double) (end - start) / 1000;
+    double wallTime = (double) (end - start) / 1000;
     int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 4;
 
     System.out.println();

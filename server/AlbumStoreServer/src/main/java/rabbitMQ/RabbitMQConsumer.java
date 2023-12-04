@@ -19,7 +19,7 @@ public class RabbitMQConsumer {
   private final DynamoDBController dbController;
   private Connection connection;
   private Channel channel;
-  private final String HOST = "localhost";
+  private final String HOST = "35.91.154.153";
 
   public RabbitMQConsumer(String exchangeName, DynamoDBController dbController, String queueName) {
     this.exchangeName = exchangeName;
