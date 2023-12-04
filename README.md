@@ -23,7 +23,6 @@ This project utilizes RabbitMQ as a message broker to efficiently handle databas
 - Batch asynchronous publishing and a multiple consumer strategy were adopted for performance optimization, max 1 consumer per message to avoid race conditions.
 - The system is designed for simplicity and high throughput, with a trade-off in transactional guarantees.
 
-
 ## Maven Commands
 
 ### AlbumStoreClient
