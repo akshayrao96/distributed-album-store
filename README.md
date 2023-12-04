@@ -7,7 +7,7 @@ This project utilizes RabbitMQ as a message broker to efficiently handle databas
 
 ### Client
 - **Actions**: Posts an album, followed by likes and dislikes.
-- **Threads**: Executes 30 threads, each repeating the posting process 100 times.
+- **Threads**: Executes 30 thread groups, each consisting 10 threads, each thread repeating the posting process 100 times.
 - **Outcome**: Results in 30,000 albums written to DynamoDB, each with 2 likes and 1 dislike.
 
 ### Server
