@@ -2,8 +2,10 @@ package rabbitMQ;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rabbitmq.client.*;
-
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
 import dynamoDB.DynamoDBController;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +19,7 @@ public class RabbitMQConsumer {
   private final DynamoDBController dbController;
   private Connection connection;
   private Channel channel;
-  private final String HOST = "35.86.106.120";
+  private final String HOST = "localhost";
 
   public RabbitMQConsumer(String exchangeName, DynamoDBController dbController, String queueName) {
     this.exchangeName = exchangeName;
@@ -47,7 +49,8 @@ public class RabbitMQConsumer {
         processMessageAndUpdateDB(message, delivery.getEnvelope().getDeliveryTag());
       };
 
-      channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
+      channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
+      });
     } catch (IOException | TimeoutException e) {
       throw new RuntimeException("Failed to initialize RabbitMQ consumer", e);
     }

@@ -30,7 +30,7 @@ public class RequestHandler2 {
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
         id = data.getData().getAlbumID();
-        return new ResponseData(startTime, "POST", latency, data.getStatusCode());
+        return new ResponseData(startTime, "POST-ALBUM", latency, data.getStatusCode());
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
           curr++;
@@ -53,7 +53,7 @@ public class RequestHandler2 {
         ApiResponse<Void> data = likeApi.reviewWithHttpInfo("like", id);
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
-        return new ResponseData(startTime, "POST", latency, data.getStatusCode());
+        return new ResponseData(startTime, "POST-LIKE", latency, data.getStatusCode());
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
           curr++;
@@ -76,7 +76,7 @@ public class RequestHandler2 {
         ApiResponse<Void> data = likeApi.reviewWithHttpInfo("dislike", id);
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
-        return new ResponseData(startTime, "POST", latency, data.getStatusCode());
+        return new ResponseData(startTime, "POST-DISLIKE", latency, data.getStatusCode());
       } catch (ApiException e) {
         if (e.getCode() >= 400 && e.getCode() < 600) {
           curr++;
@@ -113,10 +113,4 @@ public class RequestHandler2 {
     }
     return null;
   }
-
-//  public static ResponseData like(LikeApi likeApi) {
-//
-//  }
-//
-//  }
 }

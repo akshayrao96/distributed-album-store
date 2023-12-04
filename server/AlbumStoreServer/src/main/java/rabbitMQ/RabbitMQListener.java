@@ -4,6 +4,7 @@ import config.DynamoDBConfig;
 import dynamoDB.DynamoDBController;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -19,6 +20,7 @@ public class RabbitMQListener implements ServletContextListener {
   private RabbitMQProducer producer;
   private final int NUM_CONSUMERS = 20;
   private List<RabbitMQConsumer> consumers = new ArrayList<>();
+  private Timer batchPublishTimer;
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
@@ -41,6 +43,12 @@ public class RabbitMQListener implements ServletContextListener {
     // Initialize the RabbitMQProducer
     producer = new RabbitMQProducer("reviewsExchange");
     sce.getServletContext().setAttribute("rabbitMQProducer", producer);
+
+    // Schedule the BatchPublisherTask for periodic batch publishing
+    batchPublishTimer = new Timer();
+    BatchPublisherTask batchTask = new BatchPublisherTask(producer);
+    // Schedule the task for periodic execution, e.g., every 10 seconds
+    batchPublishTimer.scheduleAtFixedRate(batchTask, 0, 5000);
   }
 
   @Override
@@ -57,6 +65,13 @@ public class RabbitMQListener implements ServletContextListener {
       executorService.shutdownNow();
       Thread.currentThread().interrupt();
     }
+
+    // Cancel the batch publishing timer
+    if (batchPublishTimer != null) {
+      batchPublishTimer.cancel();
+    }
+
+    // Close the RabbitMQ producer
     if (producer != null) {
       producer.close();
     }

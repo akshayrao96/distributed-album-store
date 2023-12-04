@@ -1,97 +1,75 @@
 package part2;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Map;
 
 public class LatencyStatistics {
-  private final List<Long> responseTimes;
+
+  private final Map<String, List<Long>> responseTimesByType;
 
   public LatencyStatistics() {
-    responseTimes = new ArrayList<>();
+    responseTimesByType = new HashMap<>();
   }
 
-  public void addResponseTime(long responseTime) {
-    responseTimes.add(responseTime);
+  public void addResponseTime(String requestType, long responseTime) {
+    responseTimesByType.computeIfAbsent(requestType, k -> new ArrayList<>()).add(responseTime);
   }
 
-  public void addResponseTimesFromDeque(ConcurrentLinkedQueue<Long> responseTimeDeque) {
-    responseTimes.addAll(responseTimeDeque);
-  }
-
-  public void addResponseTimesFromCSV(String filePath) throws IOException {
-    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String[] parts = line.split(",");
-        if (parts.length >= 3) {
-          try {
-            long responseTime = Long.parseLong(parts[2].trim());
-            responseTimes.add(responseTime);
-          } catch (NumberFormatException e) {
-            // Ignore invalid data
-          }
-        }
-      }
-    }
-  }
-
-  public long calculateMean() {
+  public long calculateMean(String requestType) {
+    List<Long> responseTimes = getResponseTimes(requestType);
     if (responseTimes.isEmpty()) {
       return 0;
     }
-
-    long totalResponseTime = 0;
-    for (long responseTime : responseTimes) {
-      totalResponseTime += responseTime;
-    }
-
+    long totalResponseTime = responseTimes.stream().mapToLong(Long::longValue).sum();
     return totalResponseTime / responseTimes.size();
   }
 
-  public long calculateMedian() {
+  public long calculateMedian(String requestType) {
+    List<Long> responseTimes = getSortedResponseTimes(requestType);
     if (responseTimes.isEmpty()) {
       return 0;
     }
-
-    Collections.sort(responseTimes);
     int middle = responseTimes.size() / 2;
     if (responseTimes.size() % 2 == 1) {
       return responseTimes.get(middle);
     } else {
-      long left = responseTimes.get(middle - 1);
-      long right = responseTimes.get(middle);
-      return (left + right) / 2;
+      return (responseTimes.get(middle - 1) + responseTimes.get(middle)) / 2;
     }
   }
 
-  public long calculatePercentile(int percentile) {
+  public long calculatePercentile(String requestType, int percentile) {
+    List<Long> responseTimes = getSortedResponseTimes(requestType);
     if (responseTimes.isEmpty()) {
       return 0;
     }
-
-    Collections.sort(responseTimes);
-    int index = (int) Math.ceil((percentile / 100.0) * responseTimes.size()) - 1;
-    return responseTimes.get(index);
+    int index = (int) Math.ceil(percentile / 100.0 * responseTimes.size()) - 1;
+    return responseTimes.get(Math.max(index, 0));
   }
 
-  public long calculateMin() {
-    if (responseTimes.isEmpty()) {
-      return 0;
-    }
-
-    return Collections.min(responseTimes);
+  public long calculateMin(String requestType) {
+    return responseTimesByType.getOrDefault(requestType, Collections.emptyList())
+        .stream()
+        .min(Long::compare)
+        .orElse(0L);
   }
 
-  public long calculateMax() {
-    if (responseTimes.isEmpty()) {
-      return 0;
-    }
+  public long calculateMax(String requestType) {
+    return responseTimesByType.getOrDefault(requestType, Collections.emptyList())
+        .stream()
+        .max(Long::compare)
+        .orElse(0L);
+  }
 
-    return Collections.max(responseTimes);
+  private List<Long> getResponseTimes(String requestType) {
+    return responseTimesByType.getOrDefault(requestType, Collections.emptyList());
+  }
+
+  private List<Long> getSortedResponseTimes(String requestType) {
+    List<Long> sortedTimes = new ArrayList<>(getResponseTimes(requestType));
+    Collections.sort(sortedTimes);
+    return sortedTimes;
   }
 }

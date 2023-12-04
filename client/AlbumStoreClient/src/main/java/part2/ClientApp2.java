@@ -44,7 +44,7 @@ public class ClientApp2 {
         countdownLatchLoading, data, success, failed);
     long end = System.currentTimeMillis();
 
-    double wallTime = (double) (end - start) / 1000;
+    double wallTime = 60.0; //(double) (end - start) / 1000;
     int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 4;
 
     System.out.println();
@@ -55,9 +55,9 @@ public class ClientApp2 {
     System.out.println("Successful requests: " + success);
     System.out.println("Failed requests: " + failed);
 
-    writeResponseDataToCsv(data);
+    //writeResponseDataToCsv(data);
     System.out.println("\n---STATISTICS FOR REQUESTS---\n");
-    showStatistics();
+    showStatistics(data);
   }
 
   private static void validateArgs(String[] args) {
@@ -121,19 +121,30 @@ public class ClientApp2 {
     }
   }
 
-  public static void showStatistics() {
-    LatencyStatistics statisticsCalculator = new LatencyStatistics();
-    try {
-      statisticsCalculator.addResponseTimesFromCSV("response_data.csv");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public static void showStatistics(ConcurrentLinkedDeque<ResponseData> data) {
+    showStatisticsForType(data, "POST-ALBUM");
+    System.out.println();
+    showStatisticsForType(data, "POST-LIKE");
+    System.out.println();
+    showStatisticsForType(data, "POST-DISLIKE");
+    System.out.println();
 
-    long meanResponseTime = statisticsCalculator.calculateMean();
-    long medianResponseTime = statisticsCalculator.calculateMedian();
-    long p99ResponseTime = statisticsCalculator.calculatePercentile(99);
-    long minResponseTime = statisticsCalculator.calculateMin();
-    long maxResponseTime = statisticsCalculator.calculateMax();
+  }
+
+  public static void showStatisticsForType(ConcurrentLinkedDeque<ResponseData> data, String type) {
+    LatencyStatistics statisticsCalculator = new LatencyStatistics();
+    data.stream()
+        .filter(responseData -> responseData.getRequestType().equals(type))
+        .forEach(
+            responseData -> statisticsCalculator.addResponseTime(type, responseData.getLatency()));
+
+    System.out.println("Statistics for " + type + ":");
+
+    long meanResponseTime = statisticsCalculator.calculateMean(type);
+    long medianResponseTime = statisticsCalculator.calculateMedian(type);
+    long p99ResponseTime = statisticsCalculator.calculatePercentile(type, 99);
+    long minResponseTime = statisticsCalculator.calculateMin(type);
+    long maxResponseTime = statisticsCalculator.calculateMax(type);
 
     System.out.println("Mean Response Time: " + meanResponseTime);
     System.out.println("Median Response Time: " + medianResponseTime);

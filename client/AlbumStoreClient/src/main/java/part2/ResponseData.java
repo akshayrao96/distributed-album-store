@@ -23,4 +23,12 @@ public class ResponseData {
     String formattedStartTime = sdf.format(new Date(startTime));
     return String.format("%s, %s, %d, %d", formattedStartTime, requestType, latency, responseCode);
   }
+
+  public String getRequestType() {
+    return this.requestType;
+  }
+
+  public Long getLatency() {
+    return this.latency;
+  }
 }
