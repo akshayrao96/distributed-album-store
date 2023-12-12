@@ -9,13 +9,14 @@ import io.swagger.client.model.AlbumsProfile;
 import io.swagger.client.model.ImageMetaData;
 import io.swagger.client.model.Likes;
 import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RequestHandler2 {
 
   private static final int MAX_REQUESTS = 5;
   private static String id = "1";
 
-  public static ResponseData postAlbum(DefaultApi albumApi) {
+  public static ResponseData postAlbum(DefaultApi albumApi, AtomicInteger validAlbumKey) {
     long startTime = System.currentTimeMillis();
     int curr = 0;
     AlbumsProfile profile = new AlbumsProfile();
@@ -28,6 +29,14 @@ public class RequestHandler2 {
     while (curr < MAX_REQUESTS) {
       try {
         ApiResponse<ImageMetaData> data = albumApi.newAlbumWithHttpInfo(image, profile);
+
+        //if the post request is successful, set the validAlbumKey to the albumID
+        if(data.getStatusCode() == 201 || data.getStatusCode() == 200){
+          int albumID = Integer.parseInt(data.getData().getAlbumID());
+          if(albumID > validAlbumKey.get()){
+            validAlbumKey.set(albumID);
+          }
+        }
         long endTime = System.currentTimeMillis();
         long latency = endTime - startTime;
         id = data.getData().getAlbumID();

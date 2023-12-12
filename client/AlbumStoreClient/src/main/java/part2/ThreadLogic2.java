@@ -18,8 +18,21 @@ public class ThreadLogic2 implements Runnable {
 
   private final AtomicInteger success;
   private final AtomicInteger failed;
+  private AtomicInteger validAlbumKey;
 
   public ThreadLogic2(String path, int numRequests, CountDownLatch completed,
+      ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed, AtomicInteger validAlbumKey) {
+    this.path = path;
+    this.numRequests = numRequests;
+    this.completed = completed;
+    this.data = data;
+    this.success = success;
+    this.failed = failed;
+    this.validAlbumKey = validAlbumKey;
+  }
+
+  //alternative constructor for getLikes
+    public ThreadLogic2(String path, int numRequests, CountDownLatch completed,
       ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed) {
     this.path = path;
     this.numRequests = numRequests;
@@ -27,6 +40,7 @@ public class ThreadLogic2 implements Runnable {
     this.data = data;
     this.success = success;
     this.failed = failed;
+
   }
 
   public Runnable getLikes(String id) {
@@ -59,7 +73,8 @@ public class ThreadLogic2 implements Runnable {
     for (int j = 0; j < numRequests; j++) {
 
       // Post album
-      ResponseData responsePost = RequestHandler2.postAlbum(albumsApi);
+      ResponseData responsePost = RequestHandler2.postAlbum(albumsApi, this.validAlbumKey);
+
       if (this.data != null && responsePost != null) {
         data.add(responsePost);
         if (success != null) {
