@@ -29,6 +29,26 @@ public class ThreadLogic2 implements Runnable {
     this.failed = failed;
   }
 
+  public Runnable getLikes(String id) {
+    ApiClient apiClient = Configuration.getDefaultApiClient();
+    apiClient.setBasePath(this.path);
+    LikeApi likeApi = new LikeApi(apiClient);
+    ResponseData getLikes = RequestHandler2.getLikes(likeApi, id);
+
+    return () -> {
+      if (this.data != null && getLikes != null) {
+        data.add(getLikes);
+        if (success != null) {
+          success.incrementAndGet();
+        }
+      } else {
+        if (failed != null) {
+          failed.incrementAndGet();
+        }
+      }
+    };
+  }
+
   @Override
   public void run() {
     ApiClient apiClient = Configuration.getDefaultApiClient();
@@ -50,7 +70,7 @@ public class ThreadLogic2 implements Runnable {
           failed.incrementAndGet();
         }
       }
-
+//
       // Post 2 likes for album
       for (int i = 0; i < 2; i++) {
         ResponseData responsePostLike = RequestHandler2.postLike(likeApi);
@@ -66,7 +86,6 @@ public class ThreadLogic2 implements Runnable {
         }
       }
 
-      // Post dislike to album
       ResponseData responsePostDislike = RequestHandler2.postDislike(likeApi);
       if (this.data != null && responsePostDislike != null) {
         data.add(responsePostDislike);
@@ -78,18 +97,6 @@ public class ThreadLogic2 implements Runnable {
           failed.incrementAndGet();
         }
       }
-
-//      ResponseData responseGet = RequestHandler2.getAlbum(albumsApi);
-//      if (this.data != null && responseGet != null) {
-//        data.add(responseGet);
-//        if (success != null) {
-//          success.incrementAndGet();
-//        }
-//      } else {
-//        if (failed != null) {
-//          failed.incrementAndGet();
-//        }
-//      }
     }
 
     System.out.println(Thread.currentThread().getName() + " has finished");

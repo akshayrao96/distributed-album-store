@@ -7,6 +7,7 @@ import io.swagger.client.api.LikeApi;
 import io.swagger.client.model.AlbumInfo;
 import io.swagger.client.model.AlbumsProfile;
 import io.swagger.client.model.ImageMetaData;
+import io.swagger.client.model.Likes;
 import java.io.File;
 
 public class RequestHandler2 {
@@ -87,6 +88,29 @@ public class RequestHandler2 {
     }
     if (curr >= MAX_REQUESTS) {
       System.err.println("Unable to post to server");
+    }
+    return null;
+  }
+
+  public static ResponseData getLikes(LikeApi likeApi, String id) {
+    long startTime = System.currentTimeMillis();
+    int curr = 0;
+    while (curr < MAX_REQUESTS) {
+      try {
+        ApiResponse<Likes> data = likeApi.getLikesWithHttpInfo(id);
+        long endTime = System.currentTimeMillis();
+        long latency = endTime - startTime;
+        return new ResponseData(startTime, "GET-LIKES", latency, data.getStatusCode());
+      } catch (ApiException e) {
+        if (e.getCode() >= 400 && e.getCode() < 600) {
+          curr++;
+        } else {
+          break;
+        }
+      }
+    }
+    if (curr >= MAX_REQUESTS) {
+      System.err.println("Unable to get album " + id);
     }
     return null;
   }

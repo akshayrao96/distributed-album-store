@@ -2,6 +2,7 @@ package part2;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -11,9 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientApp2 {
 
-  private static final int INIT_NUM_REQUESTS = 100;
-  private static final int NUM_REQUESTS = 150;
+  private static final int INIT_NUM_REQUESTS = 50;
+  private static final int NUM_REQUESTS = 50;
   private static final int DELAY = 2;
+  private static final int GET_REQ = 3;
+  private static final Random rand = new Random();
 
   public static void main(String[] args) throws InterruptedException {
 
@@ -45,7 +48,7 @@ public class ClientApp2 {
     long end = System.currentTimeMillis();
 
     double wallTime = (double) (end - start) / 1000;
-    int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 4;
+    int totalRequests = numThreads * threadGroups * NUM_REQUESTS * 4 + 90;
 
     System.out.println();
     System.out.println("Total API Requests : " + totalRequests);
@@ -93,6 +96,7 @@ public class ClientApp2 {
       int numThreads, int threadGroups, CountDownLatch countDownLatch,
       ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed)
       throws InterruptedException {
+    int numAlbums = 0;
 
     for (int i = 0; i < threadGroups; i++) {
       executorService.execute(() -> {
@@ -103,6 +107,16 @@ public class ClientApp2 {
         }
         executorService2.shutdown();
       });
+      numAlbums += 1000; // 1000 albums posted
+      CountDownLatch getLatch = new CountDownLatch(3);
+      ExecutorService executorService3 = Executors.newFixedThreadPool(GET_REQ);
+
+      for (int j = 0; j < GET_REQ; j++) {
+        String randomID = String.valueOf(rand.nextInt(numAlbums + 1));
+        executorService3.execute(new ThreadLogic2(path, NUM_REQUESTS, getLatch, data, success, failed).getLikes(randomID));
+      }
+      getLatch.await();
+      executorService3.shutdown();
       Thread.sleep(DELAY * 1000);
     }
     countDownLatch.await();
@@ -127,6 +141,8 @@ public class ClientApp2 {
     showStatisticsForType(data, "POST-LIKE");
     System.out.println();
     showStatisticsForType(data, "POST-DISLIKE");
+    System.out.println();
+    showStatisticsForType(data, "GET-LIKES");
     System.out.println();
 
   }
