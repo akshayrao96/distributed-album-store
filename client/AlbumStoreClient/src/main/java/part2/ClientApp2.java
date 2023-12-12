@@ -25,11 +25,12 @@ public class ClientApp2 {
     int numThreads = Integer.parseInt(args[0]);
     int threadGroups = Integer.parseInt(args[1]);
     String path = args[2];
+    AtomicInteger validAlbumKey = new AtomicInteger(0);
 
     CountDownLatch countDownLatchInitial = new CountDownLatch(numThreads);
     ExecutorService executorService = Executors.newFixedThreadPool(threadGroups);
 
-    runInitial(executorService, path, numThreads, countDownLatchInitial);
+    runInitial(executorService, path, numThreads, countDownLatchInitial, validAlbumKey);
 
     System.out.println("---FINISHED INITIAL THREADS---\n");
 
@@ -44,7 +45,7 @@ public class ClientApp2 {
 
     long start = System.currentTimeMillis();
     runTrackedThreads(executorService, path, numThreads, threadGroups,
-        countdownLatchLoading, data, success, failed);
+        countdownLatchLoading, data, success, failed, validAlbumKey);
     long end = System.currentTimeMillis();
 
     double wallTime = (double) (end - start) / 1000;
@@ -84,17 +85,17 @@ public class ClientApp2 {
   }
 
   private static void runInitial(ExecutorService executorService, String path, int numThreads,
-      CountDownLatch countDownLatch) throws InterruptedException {
+      CountDownLatch countDownLatch, AtomicInteger validAlbumKey) throws InterruptedException {
     for (int i = 0; i < numThreads; i++) {
       executorService.execute(
-          new ThreadLogic2(path, INIT_NUM_REQUESTS, countDownLatch, null, null, null));
+          new ThreadLogic2(path, INIT_NUM_REQUESTS, countDownLatch, null, null, null, validAlbumKey));
     }
     countDownLatch.await();
   }
 
   private static void runTrackedThreads(ExecutorService executorService, String path,
       int numThreads, int threadGroups, CountDownLatch countDownLatch,
-      ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed)
+      ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed, AtomicInteger validAlbumKey)
       throws InterruptedException {
     int numAlbums = 0;
 
@@ -103,11 +104,14 @@ public class ClientApp2 {
         ExecutorService executorService2 = Executors.newFixedThreadPool(numThreads);
         for (int j = 0; j < numThreads; j++) {
           executorService2.execute(
-              new ThreadLogic2(path, NUM_REQUESTS, countDownLatch, data, success, failed));
+              new ThreadLogic2(path, NUM_REQUESTS, countDownLatch, data, success, failed, validAlbumKey));
         }
         executorService2.shutdown();
       });
-      numAlbums += 1000; // 1000 albums posted
+      //Todo: fix this not to use arbitrary number
+      //when there is a successful post, we set the validAlbumKey to the max(validAlbumKey, returnedAlbumID)
+      numAlbums = validAlbumKey.get(); // 1000 albums posted
+      
       CountDownLatch getLatch = new CountDownLatch(3);
       ExecutorService executorService3 = Executors.newFixedThreadPool(GET_REQ);
 

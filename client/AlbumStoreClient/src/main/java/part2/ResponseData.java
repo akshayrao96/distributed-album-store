@@ -9,6 +9,7 @@ public class ResponseData {
   protected String requestType;
   protected long latency;
   protected int responseCode;
+  protected int albumKey;
 
   public ResponseData(long startTime, String requestType, long latency, int responseCode) {
     this.startTime = startTime;
@@ -16,6 +17,7 @@ public class ResponseData {
     this.latency = latency;
     this.responseCode = responseCode;
   }
+
 
   @SuppressWarnings("DefaultLocale")
   public String toCsvRow() {
@@ -30,5 +32,10 @@ public class ResponseData {
 
   public Long getLatency() {
     return this.latency;
+  }
+
+  //return the response code
+  public int getResponseCode() {
+    return this.responseCode;
   }
 }
