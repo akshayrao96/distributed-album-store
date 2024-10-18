@@ -18,8 +18,21 @@ public class ThreadLogic2 implements Runnable {
 
   private final AtomicInteger success;
   private final AtomicInteger failed;
+  private AtomicInteger validAlbumKey;
 
   public ThreadLogic2(String path, int numRequests, CountDownLatch completed,
+      ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed, AtomicInteger validAlbumKey) {
+    this.path = path;
+    this.numRequests = numRequests;
+    this.completed = completed;
+    this.data = data;
+    this.success = success;
+    this.failed = failed;
+    this.validAlbumKey = validAlbumKey;
+  }
+
+  //alternative constructor for getLikes
+    public ThreadLogic2(String path, int numRequests, CountDownLatch completed,
       ConcurrentLinkedDeque<ResponseData> data, AtomicInteger success, AtomicInteger failed) {
     this.path = path;
     this.numRequests = numRequests;
@@ -27,6 +40,27 @@ public class ThreadLogic2 implements Runnable {
     this.data = data;
     this.success = success;
     this.failed = failed;
+
+  }
+
+  public Runnable getLikes(String id) {
+    ApiClient apiClient = Configuration.getDefaultApiClient();
+    apiClient.setBasePath(this.path);
+    LikeApi likeApi = new LikeApi(apiClient);
+    ResponseData getLikes = RequestHandler2.getLikes(likeApi, id);
+
+    return () -> {
+      if (this.data != null && getLikes != null) {
+        data.add(getLikes);
+        if (success != null) {
+          success.incrementAndGet();
+        }
+      } else {
+        if (failed != null) {
+          failed.incrementAndGet();
+        }
+      }
+    };
   }
 
   @Override
@@ -39,7 +73,8 @@ public class ThreadLogic2 implements Runnable {
     for (int j = 0; j < numRequests; j++) {
 
       // Post album
-      ResponseData responsePost = RequestHandler2.postAlbum(albumsApi);
+      ResponseData responsePost = RequestHandler2.postAlbum(albumsApi, this.validAlbumKey);
+
       if (this.data != null && responsePost != null) {
         data.add(responsePost);
         if (success != null) {
@@ -50,7 +85,7 @@ public class ThreadLogic2 implements Runnable {
           failed.incrementAndGet();
         }
       }
-
+//
       // Post 2 likes for album
       for (int i = 0; i < 2; i++) {
         ResponseData responsePostLike = RequestHandler2.postLike(likeApi);
@@ -66,7 +101,6 @@ public class ThreadLogic2 implements Runnable {
         }
       }
 
-      // Post dislike to album
       ResponseData responsePostDislike = RequestHandler2.postDislike(likeApi);
       if (this.data != null && responsePostDislike != null) {
         data.add(responsePostDislike);
@@ -78,18 +112,6 @@ public class ThreadLogic2 implements Runnable {
           failed.incrementAndGet();
         }
       }
-
-//      ResponseData responseGet = RequestHandler2.getAlbum(albumsApi);
-//      if (this.data != null && responseGet != null) {
-//        data.add(responseGet);
-//        if (success != null) {
-//          success.incrementAndGet();
-//        }
-//      } else {
-//        if (failed != null) {
-//          failed.incrementAndGet();
-//        }
-//      }
     }
 
     System.out.println(Thread.currentThread().getName() + " has finished");
